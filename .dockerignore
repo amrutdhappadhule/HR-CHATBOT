@@ -1,0 +1,56 @@
+# Git and environment secrets
+
+.git
+.gitignore
+.env
+.env.\*
+!.env.example
+
+# Python virtual environments and cache
+
+.venv/
+venv/
+env/
+**pycache**/
+_.py[cod]
+_.pyo
+
+# IDE and development files
+
+.vscode/
+.idea/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local uploaded documents and runtime data
+
+data/uploads/\*
+!data/uploads/.gitkeep
+
+# Local FAISS index and document metadata
+
+vector_db/\*
+!vector_db/.gitkeep
+
+# Large reference documents and videos
+
+_.mp4
+_.mov
+_.avi
+_.mkv
+_.webm
+_.zip
+\*.7z
+
+# Project documentation and reference PDFs
+
+project-story/
+\*.pdf
+
+# Logs and temporary files
+
+_.log
+_.tmp
+.DS_Store
+Thumbs.db

@@ -1,0 +1,9 @@
+Flask
+python-dotenv
+openai
+faiss-cpu
+numpy
+pypdf
+python-docx
+beautifulsoup4
+gunicorn

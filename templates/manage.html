@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manage HR Documents</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 32px auto;
+        padding: 0 16px;
+        color: #1f2937;
+        background: #f8fafc;
+      }
+
+      .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 22px;
+        margin: 20px 0;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      a {
+        color: #175cd3;
+        text-decoration: none;
+      }
+
+      .muted {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 22px;
+        background: #f8fafc;
+      }
+
+      input[type="file"] {
+        display: block;
+        width: 100%;
+        margin: 18px 0;
+      }
+
+      button {
+        border: none;
+        border-radius: 7px;
+        padding: 10px 15px;
+        color: white;
+        background: #175cd3;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      .delete-button {
+        background: #c62828;
+      }
+
+      .flash {
+        padding: 12px;
+        background: #e8f2ff;
+        border-radius: 8px;
+        overflow-wrap: anywhere;
+        margin: 10px 0;
+      }
+
+      .document {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 0;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .document:last-child {
+        border-bottom: none;
+      }
+
+      @media (max-width: 600px) {
+        .document {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header">
+      <div>
+        <h1>Manage HR Documents</h1>
+        <p class="muted">Upload, index, and manage your HR knowledge base.</p>
+      </div>
+      <a href="/">← Back to Chat</a>
+    </div>
+
+    {% with messages = get_flashed_messages() %} {% for message in messages %}
+    <div class="flash">{{ message }}</div>
+    {% endfor %} {% endwith %}
+
+    <section class="card">
+      <h2>Upload Documents</h2>
+
+      <p class="muted">
+        Supported formats: TXT, PDF, DOCX, CSV, Markdown and HTML. Select
+        multiple files in one operation.
+      </p>
+
+      <form
+        id="upload-form"
+        action="{{ url_for('upload') }}"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <div class="upload-area">
+          <label for="files">
+            <strong>Choose your documents</strong>
+          </label>
+
+          <input
+            type="file"
+            id="files"
+            name="files"
+            accept=".txt,.pdf,.docx,.csv,.md,.html,.htm"
+            multiple
+            required
+          />
+
+          <p id="selected-files" class="muted">No files selected.</p>
+
+          <button id="upload-button" type="submit">Upload and Index</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Indexed Documents</h2>
+
+      {% if documents %} {% for doc in documents %}
+      <div class="document">
+        <div>
+          <strong>{{ doc.filename }}</strong>
+          <p class="muted">{{ doc.chunks }} chunks indexed</p>
+        </div>
+
+        <form
+          action="{{ url_for('delete', filename=doc.filename) }}"
+          method="post"
+          onsubmit="return confirm('Delete this document?');"
+        >
+          <button type="submit" class="delete-button">Delete</button>
+        </form>
+      </div>
+      {% endfor %} {% else %}
+      <p class="muted">
+        No documents indexed yet. Upload files to get started.
+      </p>
+      {% endif %}
+    </section>
+
+    <script>
+      const fileInput = document.getElementById("files");
+      const selectedFiles = document.getElementById("selected-files");
+      const uploadForm = document.getElementById("upload-form");
+      const uploadButton = document.getElementById("upload-button");
+
+      fileInput.addEventListener("change", function () {
+        const files = Array.from(this.files);
+
+        selectedFiles.textContent = files.length
+          ? files.map((file) => file.name).join(", ")
+          : "No files selected.";
+      });
+
+      uploadForm.addEventListener("submit", function () {
+        uploadButton.disabled = true;
+        uploadButton.textContent = "Uploading and indexing...";
+      });
+    </script>
+  </body>
+</html>

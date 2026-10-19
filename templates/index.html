@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HR Assistant</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;color:#20242a}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    a,button{cursor:pointer} .chat{border:1px solid #ddd;border-radius:12px;padding:16px;min-height:360px}
+    #messages{display:flex;flex-direction:column;gap:12px}.msg{padding:12px;border-radius:10px;white-space:pre-wrap;max-width:85%}
+    .user{align-self:flex-end;background:#e6f1ff}.assistant{align-self:flex-start;background:#f1f2f4}
+    form{display:flex;gap:8px;margin-top:12px} input{flex:1;padding:12px;border:1px solid #bbb;border-radius:8px}
+    button{padding:10px 16px;border:0;border-radius:8px;background:#1458a6;color:white}
+    .muted{color:#666;font-size:.9rem}
+  </style>
+</head>
+<body>
+<header><h1>HR Assistant</h1><a href="/manage">Manage documents</a></header>
+<p class="muted">Ask questions about the HR policy documents uploaded to this application.</p>
+<div class="chat"><div id="messages"></div></div>
+<form id="chat-form"><input id="question" placeholder="Ask an HR policy question..." autocomplete="off" required><button>Send</button></form>
+<script>
+const messages = document.getElementById('messages');
+const history = [];
+function addMessage(role, content, sources=[]) {
+  const div=document.createElement('div'); div.className='msg '+role;
+  div.textContent=(role==='user'?'You: ':'Assistant: ')+content+(sources.length?'\n\nSources: '+sources.join(', '):'');
+  messages.appendChild(div); messages.scrollTop=messages.scrollHeight;
+}
+document.getElementById('chat-form').addEventListener('submit', async e=>{
+  e.preventDefault(); const input=document.getElementById('question'); const question=input.value.trim(); if(!question)return;
+  input.value=''; addMessage('user',question); history.push({role:'user',content:question});
+  const button=e.target.querySelector('button'); button.disabled=true;
+  try {
+    const response=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,history:history.slice(0,-1)})});
+    const data=await response.json(); addMessage('assistant',data.answer||'No response.',data.sources||[]);
+    history.push({role:'assistant',content:data.answer||'No response.'});
+  } catch(err){addMessage('assistant','Unable to contact the server. Check the terminal.');}
+  finally{button.disabled=false;input.focus();}
+});
+</script>
+</body></html>
